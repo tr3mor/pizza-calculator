@@ -83,7 +83,7 @@
           <li><strong>{{ t.stepAutolyse }}</strong> {{ t.stepAutolyseText }} <em>{{ t.stepAutolyseTime }}</em></li>
           <li><strong>{{ t.stepMix }}</strong> {{ t.stepMixText }}</li>
           <li><strong>{{ t.stepBulk }}</strong> {{ t.stepBulkText }} <em>{{ t.stepBulkTime }}</em></li>
-          <li><strong>{{ t.stepDivide }}</strong> {{ doughballCount }} {{ t.stepDivideText }} {{ doughballWeight }}g</li>
+          <li><strong>{{ t.stepDivide }}</strong> {{ doughballCount }} {{ t.stepDivideText }} {{ doughballWeight }}{{ t.grams }}</li>
           <li><strong>{{ t.stepColdProof }}</strong> {{ t.stepColdProofText }} <em>{{ t.stepColdProofTime }}</em></li>
           <li><strong>{{ t.stepBake }}</strong> {{ t.stepBakeText }} <em>{{ t.stepBakeTime }}</em></li>
         </ol>
