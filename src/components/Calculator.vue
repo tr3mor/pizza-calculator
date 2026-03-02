@@ -1,24 +1,29 @@
 <template>
   <div class="app">
     <aside class="sidebar">
-      <div class="logo">
-        <h1>Pizza Dough</h1>
-        <span>Poolish Method</span>
+      <div class="sidebar-header">
+        <div class="logo">
+          <h1>{{ t.title }}</h1>
+          <span>{{ t.subtitle }}</span>
+        </div>
+        <button class="lang-switch" @click="toggleLang">
+          {{ currentLang === 'en' ? 'RU' : 'EN' }}
+        </button>
       </div>
 
       <div class="controls">
         <div class="field">
-          <label>Doughball Weight (g)</label>
+          <label>{{ t.doughballWeight }}</label>
           <input type="text" inputmode="numeric" v-model.number="doughballWeight" @blur="clampWeight" />
         </div>
 
         <div class="field">
-          <label>Number of Doughballs</label>
+          <label>{{ t.numberOfDoughballs }}</label>
           <input type="text" inputmode="numeric" v-model.number="doughballCount" @blur="clampCount" />
         </div>
 
         <div class="field">
-          <label>Hydration (%)</label>
+          <label>{{ t.hydration }}</label>
           <div class="hydration-row">
             <input
               type="text"
@@ -41,7 +46,7 @@
       </div>
 
       <div class="total">
-        <span>Total</span>
+        <span>{{ t.total }}</span>
         <strong>{{ totalDoughWeight }}g</strong>
       </div>
     </aside>
@@ -49,38 +54,38 @@
     <main class="main">
       <div class="recipes">
         <section class="card">
-          <h2>Poolish</h2>
-          <p class="subtitle">12-18 hours ahead</p>
+          <h2>{{ t.poolish }}</h2>
+          <p class="subtitle">{{ t.poolishSubtitle }}</p>
           <ul>
-            <li><span>Flour</span><span>{{ recipe.poolish.flour }}g</span></li>
-            <li><span>Water</span><span>{{ recipe.poolish.water }}g</span></li>
-            <li><span>Instant Yeast</span><span>{{ recipe.poolish.yeast }}g</span></li>
+            <li><span>{{ t.flour }}</span><span>{{ recipe.poolish.flour }}g</span></li>
+            <li><span>{{ t.water }}</span><span>{{ recipe.poolish.water }}g</span></li>
+            <li><span>{{ t.instantYeast }}</span><span>{{ recipe.poolish.yeast }}g</span></li>
           </ul>
         </section>
 
         <section class="card">
-          <h2>Main Dough</h2>
-          <p class="subtitle">When poolish doubled</p>
+          <h2>{{ t.mainDough }}</h2>
+          <p class="subtitle">{{ t.mainDoughSubtitle }}</p>
           <ul>
-            <li><span>Flour</span><span>{{ recipe.mainDough.flour }}g</span></li>
-            <li><span>Water</span><span>{{ recipe.mainDough.water }}g</span></li>
-            <li><span>Salt</span><span>{{ recipe.mainDough.salt }}g</span></li>
-            <li><span>Instant Yeast</span><span>{{ recipe.mainDough.yeast }}g</span></li>
-            <li class="accent"><span>Poolish</span><span>all</span></li>
+            <li><span>{{ t.flour }}</span><span>{{ recipe.mainDough.flour }}g</span></li>
+            <li><span>{{ t.water }}</span><span>{{ recipe.mainDough.water }}g</span></li>
+            <li><span>{{ t.salt }}</span><span>{{ recipe.mainDough.salt }}g</span></li>
+            <li><span>{{ t.instantYeast }}</span><span>{{ recipe.mainDough.yeast }}g</span></li>
+            <li class="accent"><span>{{ t.poolish }}</span><span>{{ t.all }}</span></li>
           </ul>
         </section>
       </div>
 
       <section class="steps">
-        <h2>Instructions</h2>
+        <h2>{{ t.instructions }}</h2>
         <ol>
-          <li><strong>Poolish:</strong> Mix ingredients, cover, room temp <em>12-18h</em></li>
-          <li><strong>Autolyse:</strong> Mix flour + water, rest <em>30 min</em></li>
-          <li><strong>Mix:</strong> Add poolish, salt, yeast. Knead until smooth</li>
-          <li><strong>Bulk:</strong> Room temp (~23°C) <em>1-1.5h</em></li>
-          <li><strong>Divide:</strong> {{ doughballCount }} balls × {{ doughballWeight }}g</li>
-          <li><strong>Cold proof:</strong> Fridge <em>24-48h</em></li>
-          <li><strong>Bake:</strong> Remove from fridge <em>2h</em> before</li>
+          <li><strong>{{ t.stepPoolish }}</strong> {{ t.stepPoolishText }} <em>{{ t.stepPoolishTime }}</em></li>
+          <li><strong>{{ t.stepAutolyse }}</strong> {{ t.stepAutolyseText }} <em>{{ t.stepAutolyseTime }}</em></li>
+          <li><strong>{{ t.stepMix }}</strong> {{ t.stepMixText }}</li>
+          <li><strong>{{ t.stepBulk }}</strong> {{ t.stepBulkText }} <em>{{ t.stepBulkTime }}</em></li>
+          <li><strong>{{ t.stepDivide }}</strong> {{ doughballCount }} {{ t.stepDivideText }} {{ doughballWeight }}g</li>
+          <li><strong>{{ t.stepColdProof }}</strong> {{ t.stepColdProofText }} <em>{{ t.stepColdProofTime }}</em></li>
+          <li><strong>{{ t.stepBake }}</strong> {{ t.stepBakeText }} <em>{{ t.stepBakeTime }}</em></li>
         </ol>
       </section>
     </main>
@@ -88,13 +93,16 @@
     <img src="/oven.png" alt="Oven" class="oven-decoration" />
 
     <footer class="credits">
-      Built with Claude Code. Images generated using Google Nano Banana 2. For personal use only.
+      {{ t.credits }}
     </footer>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from '../i18n'
+
+const { t, currentLang, toggleLang } = useI18n()
 
 const doughballWeight = ref(260)
 const doughballCount = ref(4)
@@ -190,6 +198,18 @@ function round(value, decimals = 0) {
   border-right: 1px solid #2a2a2a;
 }
 
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sidebar-header .lang-switch {
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
 .logo h1 {
   margin: 0;
   font-size: 22px;
@@ -200,6 +220,23 @@ function round(value, decimals = 0) {
 .logo span {
   font-size: 13px;
   color: #888;
+}
+
+.lang-switch {
+  background: #252525;
+  border: 1px solid #3a3a3a;
+  color: #c4896a;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lang-switch:hover {
+  background: #3a3a3a;
+  border-color: #b86a4a;
 }
 
 .controls {
