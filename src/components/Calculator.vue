@@ -4,7 +4,7 @@
       <div class="sidebar-header">
         <div class="logo">
           <h1>{{ t.title }}</h1>
-          <span>{{ t.subtitle }}</span>
+          <span>{{ t.subtitle }} <a href="https://modernistcuisine.com/books/modernist-pizza/" target="_blank" rel="noopener noreferrer" class="book-link">{{ t.bookName }}</a></span>
         </div>
         <button class="lang-switch" @click="toggleLang">
           {{ currentLang === 'en' ? 'RU' : 'EN' }}
@@ -33,12 +33,12 @@
               class="hydration-input"
             />
             <div class="slider-wrap">
-              <input type="range" v-model.number="hydration" min="55" max="70" step="1" />
+              <input type="range" v-model.number="hydration" min="55" max="72" step="1" />
               <div class="slider-labels">
                 <span>55</span>
                 <span>60</span>
                 <span>65</span>
-                <span>70</span>
+                <span>72</span>
               </div>
             </div>
           </div>
@@ -71,6 +71,7 @@
             <li><span>{{ t.water }}</span><span>{{ recipe.mainDough.water }}g</span></li>
             <li><span>{{ t.salt }}</span><span>{{ recipe.mainDough.salt }}g</span></li>
             <li><span>{{ t.instantYeast }}</span><span>{{ recipe.mainDough.yeast }}g</span></li>
+            <li><span>{{ t.oliveOil }}</span><span>{{ recipe.mainDough.oil }}g</span></li>
             <li class="accent"><span>{{ t.poolish }}</span><span>{{ t.all }}</span></li>
           </ul>
         </section>
@@ -82,7 +83,7 @@
           <li><strong>{{ t.stepPoolish }}</strong> {{ t.stepPoolishText }} <em>{{ t.stepPoolishTime }}</em></li>
           <li><strong>{{ t.stepAutolyse }}</strong> {{ t.stepAutolyseText }} <em>{{ t.stepAutolyseTime }}</em></li>
           <li><strong>{{ t.stepMix }}</strong> {{ t.stepMixText }}</li>
-          <li><strong>{{ t.stepBulk }}</strong> {{ t.stepBulkText }} <em>{{ t.stepBulkTime }}</em></li>
+          <li><strong>{{ t.stepBenchRest }}</strong> {{ t.stepBenchRestText }} <em>{{ t.stepBenchRestTime }}</em></li>
           <li><strong>{{ t.stepDivide }}</strong> {{ doughballCount }} {{ t.stepDivideText }} {{ doughballWeight }}{{ t.grams }}</li>
           <li><strong>{{ t.stepColdProof }}</strong> {{ t.stepColdProofText }} <em>{{ t.stepColdProofTime }}</em></li>
           <li><strong>{{ t.stepBake }}</strong> {{ t.stepBakeText }} <em>{{ t.stepBakeTime }}</em></li>
@@ -106,14 +107,14 @@ const { t, currentLang, toggleLang } = useI18n()
 
 const doughballWeight = ref(260)
 const doughballCount = ref(4)
-const hydration = ref(63)
+const hydration = ref(66)
 
 const WEIGHT_MIN = 100
 const WEIGHT_MAX = 1000
 const COUNT_MIN = 1
 const COUNT_MAX = 50
 const HYDRATION_MIN = 55
-const HYDRATION_MAX = 70
+const HYDRATION_MAX = 72
 
 function clamp(value, min, max) {
   if (isNaN(value) || value < min) return min
@@ -133,10 +134,11 @@ function clampHydration() {
   hydration.value = clamp(hydration.value, HYDRATION_MIN, HYDRATION_MAX)
 }
 
-const POOLISH_FLOUR_RATIO = 0.30
-const POOLISH_YEAST_PERCENT = 0.001
+const POOLISH_FLOUR_RATIO = 0.12
+const POOLISH_YEAST_PERCENT = 0.0011
 const SALT_PERCENT = 0.02
-const MAIN_DOUGH_YEAST_PERCENT = 0.001
+const MAIN_DOUGH_YEAST_PERCENT = 0.004
+const OIL_PERCENT = 0.032
 
 const totalDoughWeight = computed(() => {
   return doughballWeight.value * doughballCount.value
@@ -146,7 +148,7 @@ const recipe = computed(() => {
   const totalWeight = totalDoughWeight.value
   const hydrationDecimal = hydration.value / 100
 
-  const flourFactor = 1 + hydrationDecimal + SALT_PERCENT + MAIN_DOUGH_YEAST_PERCENT
+  const flourFactor = 1 + hydrationDecimal + SALT_PERCENT + MAIN_DOUGH_YEAST_PERCENT + OIL_PERCENT
   const totalFlour = totalWeight / flourFactor
 
   const poolishFlour = totalFlour * POOLISH_FLOUR_RATIO
@@ -158,6 +160,7 @@ const recipe = computed(() => {
   const mainDoughWater = totalWater - poolishWater
   const salt = totalFlour * SALT_PERCENT
   const mainDoughYeast = totalFlour * MAIN_DOUGH_YEAST_PERCENT
+  const oil = totalFlour * OIL_PERCENT
 
   return {
     poolish: {
@@ -169,7 +172,8 @@ const recipe = computed(() => {
       flour: round(mainDoughFlour),
       water: round(mainDoughWater),
       salt: round(salt, 1),
-      yeast: round(mainDoughYeast, 2)
+      yeast: round(mainDoughYeast, 2),
+      oil: round(oil, 1)
     }
   }
 })
@@ -220,6 +224,15 @@ function round(value, decimals = 0) {
 .logo span {
   font-size: 13px;
   color: #888;
+}
+
+.book-link {
+  color: #c4896a;
+  text-decoration: none;
+}
+
+.book-link:hover {
+  text-decoration: underline;
 }
 
 .lang-switch {
