@@ -137,7 +137,7 @@ function clampHydration() {
 const POOLISH_FLOUR_RATIO = 0.12
 const POOLISH_YEAST_PERCENT = 0.0011
 const SALT_PERCENT = 0.02
-const MAIN_DOUGH_YEAST_PERCENT = 0.004
+const MAIN_DOUGH_YEAST_PERCENT = 0.001
 const OIL_PERCENT = 0.032
 
 const totalDoughWeight = computed(() => {
