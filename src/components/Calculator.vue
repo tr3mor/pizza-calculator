@@ -11,6 +11,21 @@
         </button>
       </div>
 
+      <div class="field recipe-select-field">
+        <label>{{ t.recipeLabel }}</label>
+        <div class="recipe-select">
+          <button
+            v-for="r in recipeOptions"
+            :key="r.id"
+            class="recipe-btn"
+            :class="{ active: recipeType === r.id }"
+            @click="selectRecipe(r.id)"
+          >
+            {{ r.label }}
+          </button>
+        </div>
+      </div>
+
       <div class="controls">
         <div class="field">
           <label>{{ t.doughballWeight }}</label>
@@ -55,11 +70,11 @@
       <div class="recipes">
         <section class="card">
           <h2>{{ t.poolish }}</h2>
-          <p class="subtitle">{{ t.poolishSubtitle }}</p>
+          <p class="subtitle">{{ recipeType === 'newyork' ? t.poolishSubtitleNY : t.poolishSubtitle }}</p>
           <ul>
-            <li><span>{{ t.flour }}</span><span>{{ recipe.poolish.flour }}g</span></li>
-            <li><span>{{ t.water }}</span><span>{{ recipe.poolish.water }}g</span></li>
-            <li><span>{{ t.instantYeast }}</span><span>{{ recipe.poolish.yeast }}g</span></li>
+            <li><span>{{ t.flour }} <em class="pct">({{ recipe.poolish.flourPercent }}%)</em></span><span>{{ recipe.poolish.flour }}g</span></li>
+            <li><span>{{ t.water }} <em class="pct">({{ recipe.poolish.waterPercent }}%)</em></span><span>{{ recipe.poolish.water }}g</span></li>
+            <li><span>{{ t.instantYeast }} <em class="pct">({{ recipe.poolish.yeastPercent }}%)</em></span><span>{{ recipe.poolish.yeast }}g</span></li>
           </ul>
         </section>
 
@@ -67,11 +82,11 @@
           <h2>{{ t.mainDough }}</h2>
           <p class="subtitle">{{ t.mainDoughSubtitle }}</p>
           <ul>
-            <li><span>{{ t.flour }}</span><span>{{ recipe.mainDough.flour }}g</span></li>
-            <li><span>{{ t.water }}</span><span>{{ recipe.mainDough.water }}g</span></li>
-            <li><span>{{ t.salt }}</span><span>{{ recipe.mainDough.salt }}g</span></li>
-            <li><span>{{ t.instantYeast }}</span><span>{{ recipe.mainDough.yeast }}g</span></li>
-            <li><span>{{ t.oliveOil }}</span><span>{{ recipe.mainDough.oil }}g</span></li>
+            <li><span>{{ t.flour }} <em class="pct">({{ recipe.mainDough.flourPercent }}%)</em></span><span>{{ recipe.mainDough.flour }}g</span></li>
+            <li><span>{{ t.water }} <em class="pct">({{ recipe.mainDough.waterPercent }}%)</em></span><span>{{ recipe.mainDough.water }}g</span></li>
+            <li><span>{{ t.salt }} <em class="pct">({{ recipe.mainDough.saltPercent }}%)</em></span><span>{{ recipe.mainDough.salt }}g</span></li>
+            <li><span>{{ t.instantYeast }} <em class="pct">({{ recipe.mainDough.yeastPercent }}%)</em></span><span>{{ recipe.mainDough.yeast }}g</span></li>
+            <li><span>{{ t.oliveOil }} <em class="pct">({{ recipe.mainDough.oilPercent }}%)</em></span><span>{{ recipe.mainDough.oil }}g</span></li>
             <li class="accent"><span>{{ t.poolish }}</span><span>{{ t.all }}</span></li>
           </ul>
         </section>
@@ -80,9 +95,9 @@
       <section class="steps">
         <h2>{{ t.instructions }}</h2>
         <ol>
-          <li><strong>{{ t.stepPoolish }}</strong> {{ t.stepPoolishText }} <em>{{ t.stepPoolishTime }}</em></li>
-          <li><strong>{{ t.stepAutolyse }}</strong> {{ t.stepAutolyseText }} <em>{{ t.stepAutolyseTime }}</em></li>
-          <li><strong>{{ t.stepMix }}</strong> {{ t.stepMixText }}</li>
+          <li><strong>{{ t.stepPoolish }}</strong> {{ t.stepPoolishText }} <em>{{ recipeType === 'newyork' ? t.stepPoolishTimeNY : t.stepPoolishTime }}</em></li>
+          <li v-if="recipeType !== 'newyork'"><strong>{{ t.stepAutolyse }}</strong> {{ t.stepAutolyseText }} <em>{{ t.stepAutolyseTime }}</em></li>
+          <li><strong>{{ t.stepMix }}</strong> {{ recipeType === 'newyork' ? t.stepMixNYText : t.stepMixText }}</li>
           <li><strong>{{ t.stepBenchRest }}</strong> {{ t.stepBenchRestText }} <em>{{ t.stepBenchRestTime }}</em></li>
           <li><strong>{{ t.stepDivide }}</strong> {{ doughballCount }} {{ t.stepDivideText }} {{ doughballWeight }}{{ t.grams }}</li>
           <li><strong>{{ t.stepColdProof }}</strong> {{ t.stepColdProofText }} <em>{{ t.stepColdProofTime }}</em></li>
@@ -105,9 +120,41 @@ import { useI18n } from '../i18n'
 
 const { t, currentLang, toggleLang } = useI18n()
 
+const RECIPES = {
+  neapolitan: {
+    poolishFlourRatio: 0.12,
+    poolishYeastPercent: 0.0011,
+    saltPercent: 0.02,
+    mainDoughYeastPercent: 0.001,
+    oilPercent: 0.02,
+    hydrationDefault: 66,
+  },
+  newyork: {
+    poolishFlourRatio: 60 / 590,
+    poolishYeastPercent: 0.001,
+    saltPercent: 14.5 / 590,
+    mainDoughYeastPercent: 0.002,
+    oilPercent: 20 / 590,
+    hydrationDefault: 69,
+  },
+}
+
+const recipeType = ref('neapolitan')
+const activeRecipe = computed(() => RECIPES[recipeType.value])
+
+const recipeOptions = computed(() => [
+  { id: 'neapolitan', label: t.value.recipeNeapolitan },
+  { id: 'newyork', label: t.value.recipeNewYork },
+])
+
+function selectRecipe(id) {
+  recipeType.value = id
+  hydration.value = RECIPES[id].hydrationDefault
+}
+
 const doughballWeight = ref(260)
 const doughballCount = ref(4)
-const hydration = ref(66)
+const hydration = ref(RECIPES.neapolitan.hydrationDefault)
 
 const WEIGHT_MIN = 100
 const WEIGHT_MAX = 1000
@@ -134,12 +181,6 @@ function clampHydration() {
   hydration.value = clamp(hydration.value, HYDRATION_MIN, HYDRATION_MAX)
 }
 
-const POOLISH_FLOUR_RATIO = 0.12
-const POOLISH_YEAST_PERCENT = 0.0011
-const SALT_PERCENT = 0.02
-const MAIN_DOUGH_YEAST_PERCENT = 0.001
-const OIL_PERCENT = 0.032
-
 const totalDoughWeight = computed(() => {
   return doughballWeight.value * doughballCount.value
 })
@@ -147,33 +188,50 @@ const totalDoughWeight = computed(() => {
 const recipe = computed(() => {
   const totalWeight = totalDoughWeight.value
   const hydrationDecimal = hydration.value / 100
+  const {
+    poolishFlourRatio,
+    poolishYeastPercent: poolishYeastRatio,
+    saltPercent: saltRatio,
+    mainDoughYeastPercent: mainDoughYeastRatio,
+    oilPercent: oilRatio,
+  } = activeRecipe.value
 
-  const flourFactor = 1 + hydrationDecimal + SALT_PERCENT + MAIN_DOUGH_YEAST_PERCENT + OIL_PERCENT
+  const flourFactor = 1 + hydrationDecimal + saltRatio + mainDoughYeastRatio + oilRatio
   const totalFlour = totalWeight / flourFactor
 
-  const poolishFlour = totalFlour * POOLISH_FLOUR_RATIO
+  const poolishFlour = totalFlour * poolishFlourRatio
   const poolishWater = poolishFlour
-  const poolishYeast = poolishFlour * POOLISH_YEAST_PERCENT
+  const poolishYeast = poolishFlour * poolishYeastRatio
 
   const mainDoughFlour = totalFlour - poolishFlour
   const totalWater = totalFlour * hydrationDecimal
   const mainDoughWater = totalWater - poolishWater
-  const salt = totalFlour * SALT_PERCENT
-  const mainDoughYeast = totalFlour * MAIN_DOUGH_YEAST_PERCENT
-  const oil = totalFlour * OIL_PERCENT
+  const salt = totalFlour * saltRatio
+  const mainDoughYeast = totalFlour * mainDoughYeastRatio
+  const oil = totalFlour * oilRatio
+
+  const pctOfFlour = (weight, decimals = 1) => round((weight / totalFlour) * 100, decimals)
 
   return {
     poolish: {
       flour: round(poolishFlour),
+      flourPercent: pctOfFlour(poolishFlour),
       water: round(poolishWater),
-      yeast: round(poolishYeast, 2)
+      waterPercent: pctOfFlour(poolishWater),
+      yeast: round(poolishYeast, 2),
+      yeastPercent: pctOfFlour(poolishYeast, 3)
     },
     mainDough: {
       flour: round(mainDoughFlour),
+      flourPercent: pctOfFlour(mainDoughFlour),
       water: round(mainDoughWater),
+      waterPercent: pctOfFlour(mainDoughWater),
       salt: round(salt, 1),
+      saltPercent: pctOfFlour(salt, 2),
       yeast: round(mainDoughYeast, 2),
-      oil: round(oil, 1)
+      yeastPercent: pctOfFlour(mainDoughYeast, 2),
+      oil: round(oil, 1),
+      oilPercent: pctOfFlour(oil, 2)
     }
   }
 })
@@ -250,6 +308,41 @@ function round(value, decimals = 0) {
 .lang-switch:hover {
   background: #3a3a3a;
   border-color: #b86a4a;
+}
+
+.recipe-select-field {
+  margin-top: 24px;
+}
+
+.recipe-select {
+  display: flex;
+  background: #252525;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.recipe-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #999;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.recipe-btn:hover {
+  color: #ccc;
+}
+
+.recipe-btn.active {
+  background: #b86a4a;
+  color: #fff;
 }
 
 .controls {
@@ -414,6 +507,12 @@ function round(value, decimals = 0) {
 
 .card li span:first-child {
   color: #c8c8c8;
+}
+
+.card li .pct {
+  color: #777;
+  font-style: normal;
+  font-size: 13px;
 }
 
 .card li span:last-child {
