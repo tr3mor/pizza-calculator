@@ -133,7 +133,7 @@ const RECIPES = {
     poolishFlourRatio: 60 / 590,
     poolishYeastPercent: 0.001,
     saltPercent: 14.5 / 590,
-    mainDoughYeastPercent: 0.002,
+    mainDoughYeastPercent: 0.0016,
     oilPercent: 20 / 590,
     hydrationDefault: 69,
   },
